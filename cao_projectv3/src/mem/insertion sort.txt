@@ -1,0 +1,40 @@
+# ============================
+# Insertion Sort (RV32I)
+# a0 = base address of array
+# a1 = number of elements
+# ============================
+
+    addi t0, x0, 1          # i = 1
+
+outer_loop:
+    bge  t0, a1, done       # if i >= N, done
+
+    slli t1, t0, 2          # t1 = i * 4
+    add  t1, a0, t1         # t1 = &A[i]
+    lw   t2, 0(t1)          # key = A[i]
+
+    addi t3, t0, -1         # j = i - 1
+
+inner_loop:
+    blt  t3, x0, insert    # if j < 0, insert
+
+    slli t4, t3, 2          # t4 = j * 4
+    add  t4, a0, t4         # t4 = &A[j]
+    lw   t5, 0(t4)          # t5 = A[j]
+
+    ble  t5, t2, insert    # if A[j] <= key, insert
+
+    sw   t5, 4(t4)          # A[j+1] = A[j]
+    addi t3, t3, -1         # j--
+    jal  x0, inner_loop    # jump inner loop
+
+insert:
+    slli t4, t3, 2          # t4 = j * 4
+    add  t4, a0, t4         # t4 = &A[j]
+    sw   t2, 4(t4)          # A[j+1] = key
+
+    addi t0, t0, 1          # i++
+    jal  x0, outer_loop    # next i
+
+done:
+    jal  x0, done           # infinite loop
